@@ -1,1 +1,1 @@
-__all__ = ['digg']
+__all__ = ['api', 'digg_globals']

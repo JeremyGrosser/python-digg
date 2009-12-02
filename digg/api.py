@@ -12,6 +12,8 @@ try:
 except ImportError:
     import simplejson as json
 
+from digg_globals import POST_ACTIONS
+
 class DiggError(Exception):
     """
     Exception thrown by the Digg object when there is an
@@ -32,17 +34,23 @@ class DiggCall(object):
             return DiggCall(self.endpoint, '.'.join((self.methodname, k)).lstrip('.'))
 
     def __call__(self, **kwargs):
-        methodname = self.methodname
         kwargs['method'] = self.methodname
         kwargs['type'] = 'json'
+        kwargs = urlencode(kwargs)
 
-        req = urllib2.Request('%s?%s' % (self.endpoint, urlencode(kwargs)))
+        if self.methodname in POST_ACTIONS:
+            # HTTP POST
+            req = urllib2.Request('%s?method=%s' % (self.endpoint, self.methodname), kwargs)
+            raise NotImplementedError("This method requires OAuth, which hasn't been implemented yet")
+        else:
+            # HTTP GET
+            req = urllib2.Request('%s?%s' % (self.endpoint, kwargs))
+
         if self.user_agent:
             req.add_header('User-Agent', self.user_agent)
         
         try:
             handle = urllib2.urlopen(req)
-            print repr(handle.headers.items())
             return json.loads(handle.read())
         except urllib2.HTTPError, e:
             raise DiggError('Digg sent status %i for method: %s\ndetails: %s' % (e.code, self.methodname, e.fp.read()))
