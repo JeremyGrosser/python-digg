@@ -5,7 +5,7 @@ http://github.com/sixohsix/twitter/
 
 from exceptions import Exception
 from urllib import urlencode
-import urllib2
+import httplib2
 
 try:
     import json
@@ -13,6 +13,25 @@ except ImportError:
     import simplejson as json
 
 from digg_globals import POST_ACTIONS
+
+class MemoryCache(object):
+    def __init__(self):
+        self.data = {}
+
+    def get(self, key):
+        try:
+            return self.data[key]
+        except KeyError:
+            return None
+
+    def set(self, key, value):
+        self.data[key] = value
+
+    def delete(self, key):
+        try:
+            del self.data[key]
+        except KeyError:
+            pass
 
 class DiggError(Exception):
     """
@@ -37,23 +56,22 @@ class DiggCall(object):
         kwargs['method'] = self.methodname
         kwargs['type'] = 'json'
         kwargs = urlencode(kwargs)
+        headers = []
 
-        if self.methodname in POST_ACTIONS:
-            # HTTP POST
-            req = urllib2.Request('%s?method=%s' % (self.endpoint, self.methodname), kwargs)
-            raise NotImplementedError("This method requires OAuth, which hasn't been implemented yet")
-        else:
-            # HTTP GET
-            req = urllib2.Request('%s?%s' % (self.endpoint, kwargs))
 
         if self.user_agent:
-            req.add_header('User-Agent', self.user_agent)
+            headers.append(('User-Agent', self.user_agent))
+
+        if self.methodname in POST_ACTIONS:
+            raise NotImplementedError("This method requires OAuth, which hasn't been implemented yet")
+            #response, content = httplib2.request('%s?method=%s' % (self.endpoint, self.methodname), method='POST', body=kwargs)
         
-        try:
-            handle = urllib2.urlopen(req)
-            return json.loads(handle.read())
-        except urllib2.HTTPError, e:
-            raise DiggError('Digg sent status %i for method: %s\ndetails: %s' % (e.code, self.methodname, e.fp.read()))
+        http = httplib2.Http(cache=MemoryCache())
+        response, content = http.request('%s?%s' % (self.endpoint, kwargs))
+        if response.status == 200:
+            return json.loads(content)
+        else:
+            raise DiggError('Digg sent status %i for method: %s\ndetails: %s' % (response.status, self.methodname, content))
 
 class Digg(DiggCall):
     def __init__(self, endpoint='http://services.digg.com/1.0/endpoint', user_agent='python-digg/0.1'):
