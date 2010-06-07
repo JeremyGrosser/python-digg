@@ -1,3 +1,8 @@
+Dependencies:
+python-oauth2 (http://github.com/simplegeo/python-oauth2)
+python-memcached (http://pypi.python.org/pypi/python-memcached/)
+simplejson (Python 2.5 only)
+
 For more complete/complicated examples, see test.py
 
 from digg.api import Digg
