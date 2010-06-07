@@ -4,6 +4,7 @@ POST_ACTIONS = [
     'oauth.verify',
     'comment.digg',
     'comment.bury',
+    'comment.post',
     'shorturl.create',
     'story.bury',
     'story.digg',
