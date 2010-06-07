@@ -57,13 +57,10 @@ class DiggCall(object):
             # as OAuth methods return non-json bodies
             return handle.read()
         else:
-            try:
-                if self.cache:
-                    value = self.cache.get('diggapi-' + kwargs)
-                    if value:
-                        return json.loads(value)
-            except:
-                pass
+            if self.cache != None:
+                value = self.cache.get('diggapi-' + kwargs)
+                if value:
+                    return json.loads(value)
 
             # HTTP GET
             req = urllib2.Request('%s?%s' % (self.endpoint, kwargs))
@@ -76,10 +73,7 @@ class DiggCall(object):
             handle = urllib2.urlopen(req)
             response = handle.read()
             if cache_response and self.cache != None:
-                try:
-                    self.cache.set('diggapi-' + kwargs, response, time=int(time() + 60))
-                except:
-                    pass
+                self.cache.set('diggapi-' + kwargs, response, time=int(time() + 60))
             response = json.loads(response)
             return response
         except urllib2.HTTPError, e:
