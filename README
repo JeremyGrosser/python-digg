@@ -1,2 +1,7 @@
-Take a look at test.py for example usage. OAuth implementation is still missing,
-feel free to submit patches.
+For more complete/complicated examples, see test.py
+
+from digg.api import Digg
+digg = Digg()
+
+for story in digg.story.getPopular(count=30)['stories']:
+	print story['diggs'], story['title']

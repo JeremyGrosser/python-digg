@@ -1,0 +1,16 @@
+Source: python-digg
+Section: python
+Priority: extra
+Maintainer: Jeremy Grosser <synack@digg.com>
+Build-Depends: cdbs, debhelper (>= 7.0.15), python-all, python-support, python-setuptools
+Standards-Version: 3.8.4
+Homepage: http://github.com/synack/python-digg
+Vcs-Git: git://github.com/synack/python-digg.git
+Vcs-Browser: http://github.com/synack/python-digg
+
+Package: python-digg
+Architecture: any
+Depends: ${python:Versions}, ${python:Depends}, python-memcache
+Description: Python client implementation for Digg's API
+ Provides a native Python interface to Digg's public API endpoints with
+ support for OAuth and Memcache provided by external packages.
