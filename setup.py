@@ -11,7 +11,7 @@ setup(name='python-digg',
     author='Jeremy Grosser',
     author_email='synack@digg.com',
     packages=['digg'],
-    install_requires=['python-oauth2>=1.2.0',
+    install_requires=['oauth2>=1.2.0',
                       'simplejson'],
     extras_require={'memcache': ['python-memcached>=1.45']}
     )

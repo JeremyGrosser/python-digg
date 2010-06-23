@@ -1,0 +1,55 @@
+# Installing
+
+	# easy_install http://github.com/downloads/synack/python-digg/python-digg-1.1.tar.gz
+
+easy_install will download and install python-digg and all of the required dependencies on it's own.
+
+## Required dependencies
+- oauth2 (http://github.com/simplegeo/python-oauth2)
+- simplejson (only if you're using Python 2.5, optional for 2.6 and up)
+
+## Optional dependencies
+- python-memcached (http://pypi.python.org/pypi/python-memcached/)
+
+# Usage
+
+## Simple example
+
+	from digg.api import Digg
+	digg = Digg()
+
+	for story in digg.story.getPopular(count=20, topic='apple')['stories']:
+		print story['title']
+		print '%i diggs, %i comments' % (story['diggs'], story['comments'])
+
+## OAuth example
+Digg's API requires an OAuth access token in order to authenticate a user with certain methods (eg. story.digg). Note that this procedure is subject to change in future releases, especially the ugly parse_qs nonsense.
+
+	from urlparse import parse_qs
+	import sys
+
+	from oauth2 import Consumer, Token
+	from digg.api import Digg
+
+	consumer = Consumer(key='myoauthconsumerkey', secret='myoauthconsumersecret')
+	digg = Digg(oauth_consumer=consumer)
+
+	response = digg.oauth.getRequestToken(oauth_callback='oob')
+	request_token = parse_qs(response)
+	print 'Please visit the following URL to authorize this application'
+	print 'http://digg.com/oauth/authorize?oauth_token=%s' % request_token['oauth_token'][0]
+
+	sys.stdout.write('Type the verification number: ')
+	verifier = sys.stdin.readline().rstrip('\r\n')
+
+	request_token = Token(request_token['oauth_token'][0], request_token['oauth_token_secret'][0])
+	request_token.set_verifier(verifier)
+
+	response = digg.oauth.getAccessToken(oauth_token=request_token)
+	response = parse_qs(response)
+
+	access_token = Token(response['oauth_token'][0], response['oauth_token_secret'][0])
+
+	print digg.oauth.verify(oauth_token=access_token)
+
+	print digg.story.digg(id=22091157, oauth_token=access_token)
