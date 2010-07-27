@@ -36,17 +36,33 @@ class DiggCall(object):
         try:
             return object.__getattr__(self, k)
         except AttributeError:
-            return DiggCall(self.endpoint, '.'.join((self.methodname, k)).lstrip('.'), user_agent=self.user_agent, oauth_consumer=self.oauth_consumer, cache=self.cache)
+            return self.__class__(endpoint=self.endpoint, methodname='.'.join((self.methodname, k)).lstrip('.'), user_agent=self.user_agent, oauth_consumer=self.oauth_consumer, cache=self.cache)
 
-    def __call__(self, **params):
+    def _extend_params(self, params):
         params['method'] = self.methodname
         params['type'] = 'json'
+        return params
+
+    def _build_request_url(self, params, kwargs, post=False):
+        """
+        Build URL to send API query to.
+        
+        - params: dictionary of parameters
+        - kwargs: urlencoded contents of params
+        - post:   boolean
+        """
+        if post:
+            return '%s?method=%s&type=%s' % (self.endpoint, self.methodname, params.get('type', 'json'))
+        else:
+            return '%s?%s' % (self.endpoint, kwargs)
+
+    def __call__(self, **params):
+        params = self._extend_params(params)
         kwargs = dict(params)
         kwargs = urlencode(kwargs)
-
         if self.methodname in POST_ACTIONS:
             # HTTP POST
-            request_url = '%s?method=%s&type=json' % (self.endpoint, self.methodname)
+            request_url = self._build_request_url(params, kwargs, post=True)
             client = oauth.SimpleClient(self.oauth_consumer, token=params.get('oauth_token', None))
             if 'oauth_token' in params:
                 del params['oauth_token']
@@ -63,7 +79,7 @@ class DiggCall(object):
                     return json.loads(value)
 
             # HTTP GET
-            req = urllib2.Request('%s?%s' % (self.endpoint, kwargs))
+            req = urllib2.Request(self._build_request_url(params, kwargs))
             cache_response = True
 
         if self.user_agent:
@@ -80,7 +96,29 @@ class DiggCall(object):
             raise DiggError('Digg sent status %i for method: %s\ndetails: %s' % (e.code, self.methodname, e.fp.read()))
 
 class Digg(DiggCall):
-    def __init__(self, endpoint='http://services.digg.com/1.0/endpoint', user_agent='python-digg/0.1', oauth_consumer=None, cache=False):
-        DiggCall.__init__(self, endpoint=endpoint, user_agent=user_agent, oauth_consumer=oauth_consumer, cache=cache)
+    def __init__(self, endpoint='http://services.digg.com/1.0/endpoint', methodname='', user_agent='python-digg/0.1', oauth_consumer=None, cache=None):
+        DiggCall.__init__(self, endpoint, methodname=methodname, user_agent=user_agent, oauth_consumer=oauth_consumer, cache=cache)
 
-__all__ = ['Digg']
+class Digg2(DiggCall):
+    "Client for V2 of Digg API."
+    def __init__(self, endpoint='http://services.new.digg.com/2.0/', methodname='', user_agent='python-digg/0.1', oauth_consumer=None, cache=None):
+        DiggCall.__init__(self, endpoint=endpoint, methodname=methodname, user_agent=user_agent, oauth_consumer=oauth_consumer, cache=cache)
+
+    def _extend_params(self, params):
+        params['type'] = 'json'
+        return params
+
+    def _build_request_url(self, params, kwargs, post=False):
+        """
+        Build URL to send API query to.
+        
+        - params: dictionary of parameters
+        - kwargs: urlencoded contents of params
+        - post:   boolean
+        """
+        if post:
+            return '%s.%s?type=%s' % (self.endpoint, self.methodname, params.get('type', 'json'))
+        else:
+            return '%s%s?%s' % (self.endpoint, self.methodname, kwargs)
+
+__all__ = ['Digg', 'Digg2']
