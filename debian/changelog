@@ -1,3 +1,9 @@
+python-digg (1.2) unstable; urgency=low
+
+  * OAuth and Digg API v2 support 
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 27 Jul 2010 15:24:42 -0700
+
 python-digg (1.1) unstable; urgency=low
 
   * Initial release
