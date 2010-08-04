@@ -96,12 +96,12 @@ class DiggCall(object):
             raise DiggError('Digg sent status %i for method: %s\ndetails: %s' % (e.code, self.methodname, e.fp.read()))
 
 class Digg(DiggCall):
-    def __init__(self, endpoint='http://services.digg.com/1.0/endpoint', methodname='', user_agent='python-digg/0.1', oauth_consumer=None, cache=None):
+    def __init__(self, endpoint='http://services.digg.com/1.0/endpoint', methodname='', user_agent='python-digg/1.2', oauth_consumer=None, cache=None):
         DiggCall.__init__(self, endpoint, methodname=methodname, user_agent=user_agent, oauth_consumer=oauth_consumer, cache=cache)
 
 class Digg2(DiggCall):
     "Client for V2 of Digg API."
-    def __init__(self, endpoint='http://services.new.digg.com/2.0/', methodname='', user_agent='python-digg/0.1', oauth_consumer=None, cache=None):
+    def __init__(self, endpoint='http://services.new.digg.com/2.0/', methodname='', user_agent='python-digg/1.2', oauth_consumer=None, cache=None):
         DiggCall.__init__(self, endpoint=endpoint, methodname=methodname, user_agent=user_agent, oauth_consumer=oauth_consumer, cache=cache)
 
     def _extend_params(self, params):
