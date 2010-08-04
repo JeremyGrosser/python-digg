@@ -1,6 +1,6 @@
 # Installing
 
-	# easy_install http://github.com/downloads/synack/python-digg/python-digg-1.1.tar.gz
+	# easy_install http://github.com/downloads/synack/python-digg/python-digg-1.2.tar.gz
 
 easy_install will download and install python-digg and all of the required dependencies on it's own.
 
@@ -21,6 +21,14 @@ easy_install will download and install python-digg and all of the required depen
 	for story in digg.story.getPopular(count=20, topic='apple')['stories']:
 		print story['title']
 		print '%i diggs, %i comments' % (story['diggs'], story['comments'])
+
+## Caching example
+
+	from digg.api import Digg
+	import memcache
+
+	cache = memcache.Client(['127.0.0.1:11211'])
+	digg = Digg(cache=cache)
 
 ## OAuth example
 Digg's API requires an OAuth access token in order to authenticate a user with certain methods (eg. story.digg). Note that this procedure is subject to change in future releases, especially the ugly parse_qs nonsense.
