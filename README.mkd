@@ -1,3 +1,5 @@
+The Digg brand is no longer operated by the same company and the API this client serves hasn't existed for years. This repository is for historical purposes only.
+
 # Installing
 
 	# easy_install http://github.com/downloads/synack/python-digg/python-digg-1.2.tar.gz
